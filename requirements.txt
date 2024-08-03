@@ -1,2 +1,2 @@
 flask
-pypresence
+https://github.com/InactiveGaming13/pypresence/archive/master.zip
