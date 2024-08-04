@@ -6,7 +6,7 @@ app: Flask = Flask(__name__)
 socketio: SocketIO = SocketIO(app)
 
 
-@app.post("/")
+@app.route("/", methods=["POST"])
 def index() -> str:
     """
     This function is called when the Plex webhook sends a POST request to the server.
@@ -73,8 +73,8 @@ if __name__ == "__main__":
     This is the main function that runs the Flask server and connects to Discord RPC.
     """
     try:
-        # socketio.run(app, host="0.0.0.0", port=8080)
-        app.run(debug=False, host="0.0.0.0", port=8080)
+        socketio.run(app, host="0.0.0.0", port=8080)
+        # app.run(debug=False, host="0.0.0.0", port=8080)
     except KeyboardInterrupt:
         print("Exiting")
         socketio.emit("ServerShutdown", broadcast=True)
