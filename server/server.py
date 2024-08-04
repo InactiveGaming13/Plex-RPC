@@ -7,7 +7,7 @@ socketio: SocketIO = SocketIO(app)
 
 
 @app.post("/")
-async def index() -> str:
+def index() -> str:
     """
     This function is called when the Plex webhook sends a POST request to the server.
 
@@ -28,19 +28,19 @@ async def index() -> str:
     match eventType:
         case "media.play":
             print("Playing")
-            await socketio.emit("play", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName})
+            socketio.emit("play", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName})
 
         case "media.resume":
             print("Resuming")
-            await socketio.emit("resume", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName})
+            socketio.emit("resume", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName})
 
         case "media.pause":
             print("Paused")
-            await socketio.emit("pause")
+            socketio.emit("pause")
 
         case "media.stop":
             print("Stopped")
-            await socketio.emit("stop")
+            socketio.emit("stop")
 
         case "media.scrobble":
             print("Scrobbled")
@@ -73,7 +73,7 @@ if __name__ == "__main__":
     This is the main function that runs the Flask server and connects to Discord RPC.
     """
     try:
-        socketio.run(app, host="127.0.0.1", port=8080)
+        socketio.run(app, host="0.0.0.0", port=8080)
     except KeyboardInterrupt:
         print("Exiting")
         socketio.emit("ServerShutdown", broadcast=True)
