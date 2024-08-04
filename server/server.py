@@ -1,5 +1,5 @@
 from flask import Flask, request
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO
 from json import loads
 
 app: Flask = Flask(__name__)
@@ -28,19 +28,19 @@ def index() -> str:
     match eventType:
         case "media.play":
             print("Playing")
-            emit("play", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName}, broadcast=True)
+            socketio.emit("play", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName}, broadcast=True)
 
         case "media.resume":
             print("Resuming")
-            emit("resume", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName}, broadcast=True)
+            socketio.emit("resume", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName}, broadcast=True)
 
         case "media.pause":
             print("Paused")
-            emit("pause", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName}, broadcast=True)
+            socketio.emit("pause", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName}, broadcast=True)
 
         case "media.stop":
             print("Stopped")
-            emit("stop", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName}, broadcast=True)
+            socketio.emit("stop", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName}, broadcast=True)
 
         case "media.scrobble":
             print("Scrobbled")
