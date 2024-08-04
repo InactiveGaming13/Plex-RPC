@@ -36,11 +36,11 @@ def index() -> str:
 
         case "media.pause":
             print("Paused")
-            socketio.emit("pause", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName})
+            socketio.emit("pause")
 
         case "media.stop":
             print("Stopped")
-            socketio.emit("stop", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName})
+            socketio.emit("stop")
 
         case "media.scrobble":
             print("Scrobbled")
