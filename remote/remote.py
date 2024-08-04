@@ -9,7 +9,7 @@ socketio: Client = Client()
 currentlyPlaying: dict[str, str] = {}
 
 
-def updatePresence(data: dict[str, str], playing: bool = True) -> None:
+def updatePresence(data: dict[str, str] | None, playing: bool = True) -> None:
     """
     This function updates the Discord RPC status with the provided parameters.
 
@@ -17,7 +17,12 @@ def updatePresence(data: dict[str, str], playing: bool = True) -> None:
         data (dict[str, str]): The data sent from the server.
         playing (bool, optional): Whether the media is playing or not. Defaults to True.
     """
-    if playing:
+    if playing and data:
+        if len(currentlyPlaying) > 1:
+            currentlyPlaying.clear()
+        currentlyPlaying[data["metadataTitle"]] = data["metadataArtists"]
+        if not RPC.pipe:
+            RPC.connect()
         RPC.update(
             state=f"by {data["metadataArtists"]}",
             details=data["metadataTitle"],
@@ -26,6 +31,7 @@ def updatePresence(data: dict[str, str], playing: bool = True) -> None:
             type=2
         )
     else:
+        currentlyPlaying.clear()
         RPC.clear()
 
 
@@ -34,8 +40,7 @@ def connect() -> None:
     """
     This function is called when the client connects to the server.
     """
-    print("Connected to server")
-    RPC.connect()
+    print("Connected to Socket server")
 
 
 @socketio.on("disconnect")
@@ -43,8 +48,8 @@ def disconnect() -> None:
     """
     This function is called when the client disconnects from the server.
     """
-    print("Disconnected from server")
-    RPC.close()
+    print("Disconnected from Socket server")
+    RPC.clear()
 
 
 @socketio.on("play")
@@ -72,27 +77,21 @@ def resume(data: dict[str, str]) -> None:
 
 
 @socketio.on("pause")
-def pause(data: dict[str, str]) -> None:
+def pause() -> None:
     """
     This function is called when the server sends a "pause" event to the client.
-
-    Args:
-        data (dict[str, str]): The data sent from the server.
     """
     print("Paused")
-    updatePresence(data, False)
+    updatePresence(None, False)
 
 
 @socketio.on("stop")
-def stop(data: dict[str, str]) -> None:
+def stop() -> None:
     """
     This function is called when the server sends a "stop" event to the client.
-
-    Args:
-        data (dict[str, str]): The data sent from the server.
     """
     print("Stopped")
-    updatePresence(data, False)
+    updatePresence(None, False)
 
 
 if __name__ == "__main__":
@@ -104,8 +103,12 @@ if __name__ == "__main__":
         with open("remoteConfig.json", "r") as file:
             config: dict[str, str] = loads(file.read())
 
-        print("Connecting to server")
-        socketio.connect(f"{config["serverProtocol"]}://{config["serverIp"]}:{config["serverPort"]}")
+        print("Connecting to DiscordRPC server")
+        RPC.connect()
+        ip: str = f"{config["serverProtocol"]}://{config["serverIp"]}:{config["serverPort"]}"
+        print(f"Connecting to Socket server -> {ip}")
+        socketio.connect(ip)
+        socketio.wait()
     except KeyboardInterrupt:
         print("Disconnecting from server")
         socketio.disconnect()
