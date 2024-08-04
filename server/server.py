@@ -57,7 +57,7 @@ def connect() -> None:
     """
     This function is called when the client connects to the server.
     """
-    print(f"Client connected! -> {request.remote_addr}")
+    print(f"Client connected! -> {request.http_x_real_ip}")
 
 
 @socketio.on("disconnect")
@@ -65,7 +65,7 @@ def disconnect() -> None:
     """
     This function is called when the client disconnects from the server.
     """
-    print(f"Disconnected from server! -> {request.remote_addr}")
+    print(f"Disconnected from server! -> {request.http_x_real_ip}")
 
 
 if __name__ == "__main__":
