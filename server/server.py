@@ -28,19 +28,19 @@ def index() -> str:
     match eventType:
         case "media.play":
             print("Playing")
-            socketio.emit("play", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName}, broadcast=True)
+            socketio.emit("play", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName})
 
         case "media.resume":
             print("Resuming")
-            socketio.emit("resume", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName}, broadcast=True)
+            socketio.emit("resume", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName})
 
         case "media.pause":
             print("Paused")
-            socketio.emit("pause", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName}, broadcast=True)
+            socketio.emit("pause", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName})
 
         case "media.stop":
             print("Stopped")
-            socketio.emit("stop", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName}, broadcast=True)
+            socketio.emit("stop", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName})
 
         case "media.scrobble":
             print("Scrobbled")
