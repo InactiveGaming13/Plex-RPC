@@ -7,7 +7,7 @@ socketio: SocketIO = SocketIO(app)
 
 
 @app.post("/")
-def index() -> str:
+async def index() -> str:
     """
     This function is called when the Plex webhook sends a POST request to the server.
 
@@ -28,19 +28,19 @@ def index() -> str:
     match eventType:
         case "media.play":
             print("Playing")
-            socketio.emit("play", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName})
+            await socketio.emit("play", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName})
 
         case "media.resume":
             print("Resuming")
-            socketio.emit("resume", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName})
+            await socketio.emit("resume", {"metadataTitle": metadataTitle, "metadataArtists": metadataArtists, "serverName": serverName})
 
         case "media.pause":
             print("Paused")
-            socketio.emit("pause")
+            await socketio.emit("pause")
 
         case "media.stop":
             print("Stopped")
-            socketio.emit("stop")
+            await socketio.emit("stop")
 
         case "media.scrobble":
             print("Scrobbled")
