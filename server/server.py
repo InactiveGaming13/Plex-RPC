@@ -17,13 +17,14 @@ def index() -> str:
         str: Returns "OK" to the Plex webhook to confirm that the server received
     """
     data = loads(request.form["payload"])
+    print(data)
     eventType: str = data["event"]
     # accountName: str = data["Account"]["title"]
     # accountPhoto: str = data["Account"]["thumb"]
     serverName: str = data["Server"]["title"]
     metadataTitle: str = data["Metadata"]["title"]
     metadataArtists: str = data["Metadata"]["originalTitle"] if "originalTitle" in data["Metadata"] else data["Metadata"]["grandparentTitle"]
-    # albumName: str = data["Metadata"]["parentTitle"]
+    albumName: str = data["Metadata"]["parentTitle"]
 
     match eventType:
         case "media.play":
