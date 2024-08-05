@@ -17,7 +17,6 @@ def index() -> str:
         str: Returns "OK" to the Plex webhook to confirm that the server received
     """
     data = loads(request.form["payload"])
-    print(data)
     eventType: str = data["event"]
     # accountName: str = data["Account"]["title"]
     # accountPhoto: str = data["Account"]["thumb"]
