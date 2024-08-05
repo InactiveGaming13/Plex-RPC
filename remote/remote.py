@@ -28,8 +28,9 @@ def updatePresence(data: dict[str, str] | None, playing: bool = True) -> None:
         if not RPC.pipe:
             RPC.connect()
         RPC.update(
-            state=f"by {data["metadataArtists"]}",
             details=data["metadataTitle"],
+            state=f"by {data["metadataArtists"]}",
+            small_text=f"on {data["albumName"]}",
             large_image="plex-icon",
             large_text=f"Listening on {data["serverName"]}",
             type=2
