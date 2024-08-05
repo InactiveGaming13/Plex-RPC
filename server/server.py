@@ -2,6 +2,13 @@ from flask import Flask, request
 from flask_socketio import SocketIO
 from json import loads
 
+# Read the config file.
+print("Reading config file")
+with open("remoteConfig.json", "r") as file:
+    config: dict[str, str] = loads(file.read())
+    print("Config file read successfully")
+
+# Create the Flask app and the SocketIO instance.
 app: Flask = Flask(__name__)
 socketio: SocketIO = SocketIO(app)
 
@@ -16,7 +23,10 @@ def index() -> str:
     Returns:
         str: Returns "OK" to the Plex webhook to confirm that the server received
     """
+    # Parse the JSON data from the POST request.
     data = loads(request.form["payload"])
+
+    # Extract the required data from the JSON data.
     eventType: str = data["event"]
     # accountName: str = data["Account"]["title"]
     # accountPhoto: str = data["Account"]["thumb"]
@@ -25,9 +35,9 @@ def index() -> str:
     metadataArtists: str = data["Metadata"]["originalTitle"] if "originalTitle" in data["Metadata"] else data["Metadata"]["grandparentTitle"]
     albumName: str = data["Metadata"]["parentTitle"]
 
+    # Match the event types and send the corresponding event to the client.
     match eventType:
         case "media.play":
-            print("Playing")
             socketio.emit("play", {
                 "metadataTitle": metadataTitle,
                 "metadataArtists": metadataArtists,
@@ -36,7 +46,6 @@ def index() -> str:
             })
 
         case "media.resume":
-            print("Resuming")
             socketio.emit("resume", {
                 "metadataTitle": metadataTitle,
                 "metadataArtists": metadataArtists,
@@ -45,18 +54,16 @@ def index() -> str:
             })
 
         case "media.pause":
-            print("Paused")
             socketio.emit("pause")
 
         case "media.stop":
-            print("Stopped")
             socketio.emit("stop")
 
         case "media.scrobble":
-            print("Scrobbled")
+            pass
 
         case _:
-            print("Unknown Event")
+            print(f"Unknown Event -> {eventType}")
             pass
 
     return "OK"
@@ -67,6 +74,7 @@ def connect() -> None:
     """
     This function is called when the client connects to the server.
     """
+    # Print the client's IP address when they connect to the server (If running through NGINX, this will always read as 127.0.0.1).
     print(f"Client connected! -> {request.remote_addr}")
 
 
@@ -75,6 +83,7 @@ def disconnect() -> None:
     """
     This function is called when the client disconnects from the server.
     """
+    # Print the client's IP address when they disconnect from the server (If running through NGINX, this will always read as 127.0.0.1).
     print(f"Disconnected from server! -> {request.remote_addr}")
 
 
@@ -82,10 +91,5 @@ if __name__ == "__main__":
     """
     This is the main function that runs the Flask server and connects to Discord RPC.
     """
-    try:
-        socketio.run(app, host="0.0.0.0", port=8080)
-        # app.run(debug=False, host="0.0.0.0", port=8080)
-    except KeyboardInterrupt:
-        print("Exiting")
-        socketio.emit("ServerShutdown", broadcast=True)
-        exit(0)
+    # Run the Flask server on port 8080.
+    socketio.run(app, host=config["ip"], port=config["port"])
