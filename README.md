@@ -1,4 +1,4 @@
-# Plex-Webhook
+# Plex-RPC
 A simple app for Tracking listening status on Plex, and displaying it on DiscordRPC.
 
 This app was created to display the current status of the Plex server on Discord. This app uses the Plex Webhooks to track the current status of the Plex server
