@@ -114,7 +114,7 @@ def disconnect() -> None:
     """
     This function is called when the client disconnects from the server.
     """
-    print("Disconnected from Socket server")
+    print("Disconnected from Socket server, Attempting to reconnect")
     RPC.clear()
 
 
@@ -164,9 +164,8 @@ if __name__ == "__main__":
     try:
         print("Connecting to DiscordRPC")
         RPC.connect()
-        ip: str = f"{config["serverProtocol"]}://{config["serverIp"]}:{config["serverPort"]}"
-        print(f"Connecting to Socket server -> {ip}")
-        socketio.connect(ip)
+        print(f"Connecting to Socket server")
+        socketio.connect(f"{config["serverProtocol"]}://{config["serverIp"]}:{config["serverPort"]}")
         socketio.wait()
     except KeyboardInterrupt:  # If the user presses Ctrl+C, the program will safely exit.
         print("Disconnecting from server")
