@@ -124,6 +124,7 @@ def index() -> str:
     metadataArtists: str = data["Metadata"]["originalTitle"] if "originalTitle" in data["Metadata"] else data["Metadata"]["grandparentTitle"]
     albumName: str = data["Metadata"]["parentTitle"]
 
+    # Convert the required data to a dictionary.
     data: dict[str, str] = {
         "metadataTitle": metadataTitle,
         "metadataArtists": metadataArtists,
@@ -131,6 +132,7 @@ def index() -> str:
         "serverName": serverName
     }
 
+    # Match the event types and update the RPC accordingly.
     match eventType:
         case "media.play":
             updatePresence(data)
@@ -158,13 +160,14 @@ if __name__ == "__main__":
     """
     This is the main function that runs the Flask server and connects to Discord RPC.
     """
+    # Try to connect to Discord RPC and start the Flask server.
     try:
         print("Connecting to Discord RPC")
         RPC.connect()
         print("Connected to Discord RPC")
         print("Starting Flask Server")
         app.run(debug=False, host="0.0.0.0", port=8015)
-    except KeyboardInterrupt:
+    except KeyboardInterrupt:  # If the user presses Ctrl+C, close the Discord RPC connection and exit.
         print("Closing Discord RPC Connection")
         RPC.close()
         print("Exiting")
