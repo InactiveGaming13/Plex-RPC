@@ -2,7 +2,11 @@ from json import loads
 from pypresence import Presence
 from socketio import Client
 
-RPC: Presence = Presence("YOUR_DISCORD_CLIENT_ID")
+print("Reading config file")
+with open("remoteConfig.json", "r") as file:
+    config: dict[str, str] = loads(file.read())
+
+RPC: Presence = Presence(config["discordClientId"])
 
 socketio: Client = Client()
 
@@ -99,10 +103,6 @@ if __name__ == "__main__":
     This is the main function that connects to the server and Discord RPC.
     """
     try:
-        print("Reading config file")
-        with open("remoteConfig.json", "r") as file:
-            config: dict[str, str] = loads(file.read())
-
         print("Connecting to DiscordRPC server")
         RPC.connect()
         ip: str = f"{config["serverProtocol"]}://{config["serverIp"]}:{config["serverPort"]}"
