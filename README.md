@@ -9,21 +9,21 @@ A simple app for Tracking listening status on Plex, and displaying it on Discord
 
 ---
 
+Please note the following abbreviations used in the documentation:
+- PMS: Plex Media Server
+- RPC: Rich Presence
+- venv: Virtual Environment
+
 This app was created to display the current status of the Plex server on Discord. This app uses the Plex Webhooks to track the current status of the Plex server
 and displays it on Discord using the DiscordRPC.
 
 Included in this repository are three files: `main.py`, `server.py`, and `remote.py`.
 
-- `main.py` is the main file that should be run on the same machine as the Discord client.
-- `server.py` is the main file that should be run on a different machine than the Discord client.
-- `remote.py` is a file that should be run on the same machine as the Discord client to receive the status updates from the server.
+- `main.py` is the main file that should be run on the same machine as the Discord client and PMS.
+- `server.py` is the main file that should be run on a different machine than the Discord client but the same machine as PMS.
+- `remote.py` is a file that should be run on the same machine as the Discord client to receive the status updates from PMS.
 
 Please follow the [Installation](#installation) instructions below to get started.
-
-Please note the following abbreviations used in the documentation:
-- PMS: Plex Media Server
-- RPC: Rich Presence
-- venv: Virtual Environment
 
 ---
 
