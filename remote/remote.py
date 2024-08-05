@@ -1,6 +1,7 @@
 from json import loads
 from pypresence import Presence
 from socketio import Client
+from requests import get
 
 print("Reading config file")
 with open("remoteConfig.json", "r") as file:
@@ -21,6 +22,16 @@ def updatePresence(data: dict[str, str] | None, playing: bool = True) -> None:
         data (dict[str, str]): The data sent from the server.
         playing (bool, optional): Whether the media is playing or not. Defaults to True.
     """
+
+    albumImage: str | None = None
+
+    if config["lastFmEnabled"] and playing and data:
+        lastFmRequest: str = f"https://ws.audioscrobbler.com/2.0/?method=album.getInfo&api_key={config["lastFmApiKey"]}&artist={data["metadataArtists"]}&album={data["albumName"]}&format=json"
+        lastFmResponse: dict[str, str] = get(lastFmRequest).json()
+
+        if "album" in lastFmResponse:
+            albumImage = lastFmResponse["album"]["image"][3]["#text"]
+
     if playing and data:
         if len(currentlyPlaying) > 1:
             currentlyPlaying.clear()
@@ -30,9 +41,10 @@ def updatePresence(data: dict[str, str] | None, playing: bool = True) -> None:
         RPC.update(
             details=data["metadataTitle"],
             state=f"by {data["metadataArtists"]}",
-            small_text=f"on {data["albumName"]}",
-            large_image="plex-icon",
-            large_text=f"Listening on {data["serverName"]}",
+            large_image=albumImage if albumImage else "plex-icon",
+            large_text=f"{data["albumName"]}",
+            small_image="plex-icon" if albumImage else None,
+            small_text=f"Listening on {data["serverName"]}" if albumImage else None,
             type=2
         )
     else:

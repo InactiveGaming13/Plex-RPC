@@ -1,6 +1,8 @@
 {
-    "serverIp": "0.0.0.0",
-    "serverPort": 8080,
-    "serverProtocol": "http",
-    "discordClientId": "DISCORD_CLIENT_ID"
+    "serverIp": "YOUR.WEBSOCKET.DOMAIN",
+    "serverPort": 443,
+    "serverProtocol": "https",
+    "discordClientId": "YOUR_DISCORD_CLIENT_ID",
+    "lastFmEnabled": true,
+    "lastFmApiKey": "YOUR_LAST.FM_API_KEY"
 }
