@@ -5,15 +5,19 @@ from requests import get
 from time import sleep
 from threading import Thread
 
+# Get the config params.
 print("Reading config file")
 with open("remoteConfig.json", "r") as file:
     config: dict[str, str] = loads(file.read())
     print("Config file read successfully")
 
+# Create the Discord RPC instance.
 RPC: Presence = Presence(config["discordClientId"])
 
+# Create the SocketIO client.
 socketio: Client = Client()
 
+# Declare the currentlyPlaying and lastPlayed dictionaries.
 currentlyPlaying: dict[str, dict[str, str | int]] = {}
 lastPlayed: currentlyPlaying = {}
 
@@ -23,7 +27,7 @@ def clearRPC(delay: float) -> None:
     This function clears the Discord RPC status.
     """
 
-    #
+    # Clear the Discord RPC status after the delay if nothing is being played on the PMS.
     lastPlayed.clear()
     lastPlayed.update(currentlyPlaying)
     currentlyPlaying.clear()
@@ -156,6 +160,7 @@ if __name__ == "__main__":
     """
     This is the main function that connects to the server and Discord RPC.
     """
+    # Attempt to start the connection to the server and Discord RPC.
     try:
         print("Connecting to DiscordRPC")
         RPC.connect()
@@ -163,7 +168,7 @@ if __name__ == "__main__":
         print(f"Connecting to Socket server -> {ip}")
         socketio.connect(ip)
         socketio.wait()
-    except KeyboardInterrupt:
+    except KeyboardInterrupt:  # If the user presses Ctrl+C, the program will safely exit.
         print("Disconnecting from server")
         socketio.disconnect()
         print("Closing Discord RPC")
