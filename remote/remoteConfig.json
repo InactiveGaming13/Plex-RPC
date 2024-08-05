@@ -1,5 +1,6 @@
 {
-    "serverIp": "127.0.0.1",
+    "serverIp": "0.0.0.0",
     "serverPort": 8080,
-    "serverProtocol": "http"
+    "serverProtocol": "http",
+    "discordClientId": "DISCORD_CLIENT_ID",
 }
