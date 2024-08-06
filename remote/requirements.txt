@@ -1,3 +1,4 @@
-socketio
+python-socketio
 websocket-client
+requests
 https://github.com/InactiveGaming13/pypresence/archive/master.zip
