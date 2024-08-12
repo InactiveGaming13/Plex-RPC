@@ -4,7 +4,7 @@ from json import loads
 
 # Read the config file.
 print("Reading config file")
-with open("remoteConfig.json", "r") as file:
+with open("serverConfig.json", "r") as file:
     config: dict[str, str] = loads(file.read())
     print("Config file read successfully")
 
