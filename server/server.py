@@ -35,6 +35,7 @@ def index() -> str:
     albumName: str = data["Metadata"]["parentTitle"]
 
     print(metadataTitle)
+    print(data["Metadata"]["title"])
 
     # Match the event types and send the corresponding event to the client.
     match eventType:
