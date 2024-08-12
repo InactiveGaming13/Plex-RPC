@@ -34,6 +34,7 @@ def index() -> str:
     metadataArtists: str = data["Metadata"]["originalTitle"] if "originalTitle" in data["Metadata"] else data["Metadata"]["grandparentTitle"]
     albumName: str = data["Metadata"]["parentTitle"]
 
+    print(data)
     print(metadataTitle)
     print(data["Metadata"]["title"])
 
