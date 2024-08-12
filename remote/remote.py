@@ -47,8 +47,6 @@ def updatePresence(data: dict[str, str] | None, playing: bool = True) -> None:
         playing (bool, optional): Whether the media is playing or not. Defaults to True.
     """
 
-    print(data)
-
     # Declare albumImage as None so that it always exists.
     albumImage: str | None = None
 
