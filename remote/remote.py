@@ -71,7 +71,6 @@ def updatePresence(data: dict[str, str] | None, playing: bool = True) -> None:
         lastFmRequest: str = filterRequestURL(
             f"https://ws.audioscrobbler.com/2.0/?method=album.getInfo&api_key={config["lastFmApiKey"]}&artist={artist}&album={data["albumName"]}&format=json"
         )
-        print(lastFmRequest)
         # Get the Last.fm response.
         lastFmResponse: dict[str, str] = get(lastFmRequest).json()
 

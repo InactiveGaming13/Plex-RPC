@@ -25,7 +25,6 @@ def index() -> str:
     """
     # Parse the JSON data from the POST request.
     data = loads(request.form["payload"])
-    print(data)
     # Extract the required data from the JSON data.
     eventType: str = data["event"]
     # accountName: str = data["Account"]["title"]
