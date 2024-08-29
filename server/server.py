@@ -32,7 +32,7 @@ def index() -> str:
     # accountPhoto: str = data["Account"]["thumb"]
     serverName: str = data["Server"]["title"]
     metadataTitle: str = data["Metadata"]["title"] if data["Metadata"]["title"] != "" else "Unknown Title"
-    metadataArtists: str = data["Metadata"]["originalTitle"] if "originalTitle" in data["Metadata"] else data["Metadata"]["grandparentTitle"]
+    metadataArtists: str = data["Metadata"]["grandparentTitle"]
     albumName: str = data["Metadata"]["parentTitle"]
 
     # Match the event types and send the corresponding event to the client.
