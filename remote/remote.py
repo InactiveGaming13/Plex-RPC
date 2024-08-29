@@ -22,6 +22,19 @@ currentlyPlaying: dict[str, dict[str, str | int]] = {}
 lastPlayed: currentlyPlaying = {}
 
 
+def filterRequestURL(url: str) -> str:
+    """
+    This function filters the URL to remove the API key.
+
+    Args:
+        url (str): The URL to filter.
+
+    Returns:
+        str: The filtered URL.
+    """
+    return url.replace(" ", "+").replace("’", "%27").replace("'", "%27")
+
+
 def clearRPC(delay: float) -> None:
     """
     This function clears the Discord RPC status.
@@ -53,13 +66,21 @@ def updatePresence(data: dict[str, str] | None, playing: bool = True) -> None:
     # Check if Last.fm is enabled and if the media is playing and if the data is not None.
     if config["lastFmEnabled"] and playing and data:
         # Convert the metadataArtists string to a list and get the first artist.
-        artist: str = data["metadataArtists"].split(";")[0]
+        artist: str = data["directoryArtists"] if data["directoryArtists"] is not None else data["metadataArtists"].split(";")[0]
         # Create the Last.fm request URL.
-        lastFmRequest: str = f"https://ws.audioscrobbler.com/2.0/?method=album.getInfo&api_key={config["lastFmApiKey"]}&artist={artist}&album={data["albumName"]}&format=json"
+        lastFmRequest: str = filterRequestURL(
+            f"https://ws.audioscrobbler.com/2.0/?method=album.getInfo&api_key={config["lastFmApiKey"]}&artist={artist}&album={data["albumName"]}&format=json"
+        )
+        print(lastFmRequest)
         # Get the Last.fm response.
         lastFmResponse: dict[str, str] = get(lastFmRequest).json()
+
+        if "error" in lastFmResponse and lastFmResponse["error"] == 6:
+            albumImage = "plex-icon"
+            return
+
         # Get the album image from the Last.fm response.
-        albumImage = lastFmResponse["album"]["image"][3]["#text"] if "album" in lastFmResponse else "plex-icon"
+        albumImage = lastFmResponse["album"]["image"][3]["#text"] if "album" in lastFmResponse and lastFmResponse["album"]["image"][3]["#text"] != "" else "plex-icon"
 
     # Check if the media is playing and if the data is not None.
     if playing and data:
