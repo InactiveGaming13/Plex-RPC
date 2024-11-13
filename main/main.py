@@ -56,10 +56,17 @@ def updatePresence(data: dict[str, str] | None, playing: bool = True) -> None:
     if config["lastFmEnabled"] and playing and data:
         # Convert the metadataArtists string to a list and get the first artist.
         artist: str = data["metadataArtists"].split(";")[0]
+
         # Create the Last.fm request URL.
         lastFmRequest: str = f"https://ws.audioscrobbler.com/2.0/?method=album.getInfo&api_key={config["lastFmApiKey"]}&artist={artist}&album={data["albumName"]}&format=json"
+
         # Get the Last.fm response.
         lastFmResponse: dict[str, str] = get(lastFmRequest).json()
+
+        if "error" in lastFmResponse and lastFmResponse["error"] == 6:
+            albumImage = "plex-icon"
+            pass
+
         # Get the album image from the Last.fm response.
         albumImage = lastFmResponse["album"]["image"][3]["#text"] if "album" in lastFmResponse else "plex-icon"
 
@@ -120,7 +127,7 @@ def index() -> str:
     # accountPhoto: str = data["Account"]["thumb"]
     serverName: str = data["Server"]["title"]
     metadataTitle: str = data["Metadata"]["title"]
-    # Below is required as the "originalTitle" key is only present when the grandparentTitle is different to the artist's name.
+    # Below is required as the "originalTitle" key is only present when the "grandparentTitle" is different to the artist's name.
     metadataArtists: str = data["Metadata"]["originalTitle"] if "originalTitle" in data["Metadata"] else data["Metadata"]["grandparentTitle"]
     albumName: str = data["Metadata"]["parentTitle"]
 
