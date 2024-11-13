@@ -40,7 +40,7 @@ Please follow the [Installation](#installation) instructions below to get starte
 4. Configure PMS to send Webhooks to `http://127.0.0.1:8080` as this is the default address the app listens on (or change it to your preference).
 5. Configure the `config.json` file with your Discord Application ID and last.fm API key (if using the last.fm album covers).
 6. Run the app with `python main.py`, ENSURE THAT DISCORD IS RUNNING FIRST.
-7. Start listening to something on Plex and the status should be displayed on Discord.
+7. Start listening to something on Plex, and the status should be displayed on Discord.
 
 ### Running on a different machine as Discord (e.g. a server running PMS)
 1. Clone the repository to the server machine.
@@ -54,8 +54,9 @@ Please follow the [Installation](#installation) instructions below to get starte
 9. On the machine running Discord, configure the `remoteConfig.json` file with the IP address of the server machine (STRONGLY RECOMMENDED: Use NGINX even on a local connection).
 10. (Optional but recommended) Create a venv with `python -m venv venv` and activate it with `source venv/bin/activate`.
 11. Install the requirements with `pip install -r requirements.txt` in the `Plex-RPC/remote` directory.
-12. Run the app with `python remote.py`, ENSURE THAT DISCORD IS RUNNING FIRST.
-13. Start listening to something on Plex and the status should be displayed on Discord.
+12. For your convenience, a script labeled `plex-webhook` is included in the `Plex-RPC/server` directory. This script will automatically start the server and the remote app. To use it, run `./plex-webhook` in the `Plex-RPC/server` directory.
+13. Run the app with `python remote.py`, ENSURE THAT DISCORD IS RUNNING FIRST.
+14. Start listening to something on Plex, and the status should be displayed on Discord.
 
 ---
 
@@ -71,7 +72,7 @@ Please follow the [Installation](#installation) instructions below to get starte
 4. Configure PMS to send Webhooks to `http://127.0.0.1:8080` as this is the default address the app listens on (or change it to your preference).
 5. Configure the `config.json` file with your Discord Application ID and last.fm API key (if using the last.fm album covers).
 6. Run the app with `python main.py`, ENSURE THAT DISCORD IS RUNNING FIRST.
-7. Start listening to something on Plex and the status should be displayed on Discord.
+7. Start listening to something on Plex, and the status should be displayed on Discord.
 
 ---
 
@@ -88,7 +89,7 @@ Please follow the [Installation](#installation) instructions below to get starte
 10. (Optional but recommended) Create a venv with `python -m venv venv` and activate it with `.\venv\Scripts\Activate`.
 11. Install the requirements with `pip install -r requirements.txt` in the `Plex-RPC/remote` directory.
 12. Run the app with `python remote.py`, ENSURE THAT DISCORD IS RUNNING FIRST.
-13. Start listening to something on Plex and the status should be displayed on Discord.
+13. Start listening to something on Plex, and the status should be displayed on Discord.
 
 ---
 
