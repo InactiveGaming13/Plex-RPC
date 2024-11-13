@@ -1,0 +1,22 @@
+# Read the settings.
+. ./settings
+
+# Get all flags.
+while getopts es flag
+do
+    case "${flag}" in
+        s) SILENT=true;;
+    esac
+done
+
+cd ${WORKINGDIR}
+
+while true; do
+	gunicorn --worker-class eventlet -b "$SERVERIP:$SERVERPORT" -w "$SERVERWORKERS" "$SERVER"
+
+	if [ "$SILENT" = false ]; then
+		echo "It appears the server has gone offline, attempting to Auto-Restart. Press Ctrl+C to cancel."
+	sleep 1
+	fi
+	sleep 1
+done

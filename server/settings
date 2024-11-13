@@ -1,0 +1,9 @@
+# Main Server Config.
+export SERVER="server:app"
+export WORKINGDIR="./server/"
+export SERVERIP=127.0.0.1
+export SERVERPORT=8080
+export SERVERWORKERS=1
+
+# Silent Variable.
+export SILENT=false
