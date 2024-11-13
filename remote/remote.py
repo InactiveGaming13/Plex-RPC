@@ -76,7 +76,7 @@ def updatePresence(data: dict[str, str] | None, playing: bool = True) -> None:
 
         if "error" in lastFmResponse and lastFmResponse["error"] == 6:
             albumImage = "plex-icon"
-            return
+            pass
 
         # Get the album image from the Last.fm response.
         albumImage = lastFmResponse["album"]["image"][3]["#text"] if "album" in lastFmResponse and lastFmResponse["album"]["image"][3]["#text"] != "" else "plex-icon"
