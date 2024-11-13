@@ -67,10 +67,12 @@ def updatePresence(data: dict[str, str] | None, playing: bool = True) -> None:
     if config["lastFmEnabled"] and playing and data:
         # Convert the metadataArtists string to a list and get the first artist.
         artist: str = data["directoryArtists"] if data["directoryArtists"] is not None else data["metadataArtists"].split(";")[0]
+
         # Create the Last.fm request URL.
         lastFmRequest: str = filterRequestURL(
             f"https://ws.audioscrobbler.com/2.0/?method=album.getInfo&api_key={config["lastFmApiKey"]}&artist={artist}&album={data["albumName"]}&format=json"
         )
+
         # Get the Last.fm response.
         lastFmResponse: dict[str, str] = get(lastFmRequest).json()
 
