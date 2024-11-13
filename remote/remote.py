@@ -147,6 +147,7 @@ def play(data: dict[str, str]) -> None:
     Args:
         data (dict[str, str]): The data sent from the server.
     """
+    data["eventType"] = "media.play"
     updatePresence(data)
 
 
@@ -158,6 +159,7 @@ def resume(data: dict[str, str]) -> None:
     Args:
         data (dict[str, str]): The data sent from the server.
     """
+    data["eventType"] = "media.resume"
     updatePresence(data)
 
 
