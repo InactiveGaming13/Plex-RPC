@@ -91,7 +91,7 @@ def updatePresence(data: dict[str, str] | None, playing: bool = True) -> None:
         # Update the Discord RPC status with the data.
         RPC.update(
             details=data["metadataTitle"],
-            state=f"by {data["metadataArtists"]}",
+            state=data["metadataArtists"],
             large_image=albumImage,
             large_text=f"{data["albumName"]}",
             small_image="plex-icon" if albumImage != "plex-icon" else None,
