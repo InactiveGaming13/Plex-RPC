@@ -162,4 +162,3 @@ cython_debug/
 #.idea/
 
 remote/remoteConfig.json
-server/serverConfig.json
