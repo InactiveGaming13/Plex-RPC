@@ -2,12 +2,6 @@ from flask import Flask, request
 from flask_socketio import SocketIO
 from json import loads
 
-# Read the config file.
-print("Reading config file")
-with open("serverConfig.json", "r") as file:
-    config: dict[str, str] = loads(file.read())
-    print("Config file read successfully")
-
 # Create the Flask app and the SocketIO instance.
 app: Flask = Flask(__name__)
 socketio: SocketIO = SocketIO(app)
@@ -116,4 +110,4 @@ if __name__ == "__main__":
     This is the main function that runs the Flask server and connects to Discord RPC.
     """
     # Run the Flask server on port 8080.
-    socketio.run(app, host=config["ip"], port=config["port"])
+    socketio.run(app)
