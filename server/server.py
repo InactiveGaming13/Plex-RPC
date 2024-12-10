@@ -12,6 +12,8 @@ with open("serverConfig.json", "r") as file:
 app: Flask = Flask(__name__)
 socketio: SocketIO = SocketIO(app)
 
+currentlyPlaying: dict[str, str] | None = {}
+
 
 @app.route("/", methods=["POST"])
 def index() -> str:
@@ -38,6 +40,13 @@ def index() -> str:
     # Match the event types and send the corresponding event to the client.
     match eventType:
         case "media.play":
+            currentlyPlaying.update({
+                "metadataTitle": metadataTitle,
+                "metadataArtists": metadataArtists,
+                "directoryArtists": directoryArtists,
+                "albumName": albumName,
+                "serverName": serverName
+            })
             socketio.emit("play", {
                 "metadataTitle": metadataTitle,
                 "metadataArtists": metadataArtists,
@@ -47,6 +56,13 @@ def index() -> str:
             })
 
         case "media.resume":
+            currentlyPlaying.update({
+                "metadataTitle": metadataTitle,
+                "metadataArtists": metadataArtists,
+                "directoryArtists": directoryArtists,
+                "albumName": albumName,
+                "serverName": serverName
+            })
             socketio.emit("resume", {
                 "metadataTitle": metadataTitle,
                 "metadataArtists": metadataArtists,
@@ -56,9 +72,11 @@ def index() -> str:
             })
 
         case "media.pause":
+            currentlyPlaying.clear()
             socketio.emit("pause")
 
         case "media.stop":
+            currentlyPlaying.clear()
             socketio.emit("stop")
 
         case "media.scrobble":
@@ -78,6 +96,10 @@ def connect() -> None:
     """
     # Print the client's IP address when they connect to the server (If running through NGINX, this will always read as 127.0.0.1).
     print(f"Client connected! -> {request.remote_addr}")
+
+    # If there is a currently playing song, send the data to the client.
+    if currentlyPlaying:
+        socketio.emit("play", currentlyPlaying)
 
 
 @socketio.on("disconnect")
