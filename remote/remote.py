@@ -177,18 +177,6 @@ def resume(data: dict[str, str]) -> None:
     updatePresence(data)
 
 
-@socketio.on("scrobble")
-def scrobble(data: dict[str, str]) -> None:
-    """
-    This function is called when the server sends a "scrobble" event to the client.
-
-    Args:
-        data (dict[str, str]): The data sent from the server.
-    """
-    if not data["metadataTitle"] == currentlyPlaying[data["metadataTitle"]] and data["metadataTitle"]:
-        updatePresence({"eventType": "media.play"}, True)
-
-
 @socketio.on("pause")
 def pause() -> None:
     """
