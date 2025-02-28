@@ -74,7 +74,20 @@ def index() -> str:
             socketio.emit("stop")
 
         case "media.scrobble":
-            pass
+            currentlyPlaying.update({
+                "metadataTitle": metadataTitle,
+                "metadataArtists": metadataArtists,
+                "directoryArtists": directoryArtists,
+                "albumName": albumName,
+                "serverName": serverName
+            })
+            socketio.emit("scrobble", {
+                "metadataTitle": metadataTitle,
+                "metadataArtists": metadataArtists,
+                "directoryArtists": directoryArtists,
+                "albumName": albumName,
+                "serverName": serverName
+            })
 
         case _:
             print(f"Unknown Event -> {eventType}")

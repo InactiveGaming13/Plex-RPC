@@ -1,4 +1,4 @@
 python-socketio
 websocket-client
 requests
-https://github.com/InactiveGaming13/pypresence/archive/master.zip
+https://github.com/qwertyquerty/pypresence/archive/refs/heads/master.zip

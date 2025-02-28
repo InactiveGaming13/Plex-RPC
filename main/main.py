@@ -5,7 +5,7 @@ This file should be run on the client where the Plex Media Server and Discord ar
 
 from flask import Flask, request
 from json import loads
-from pypresence import Presence
+from pypresence import Presence, ActivityType
 from requests import get
 from threading import Thread
 from time import sleep
@@ -90,13 +90,13 @@ def updatePresence(data: dict[str, str] | None, playing: bool = True) -> None:
 
         # Update the Discord RPC status with the data.
         RPC.update(
+            activity_type=ActivityType.LISTENING,
             details=data["metadataTitle"],
             state=data["metadataArtists"],
             large_image=albumImage,
             large_text=f"{data["albumName"]}",
             small_image="plex-icon" if albumImage != "plex-icon" else None,
-            small_text=f"Listening on {data["serverName"]}",
-            type=2
+            small_text=f"Listening on {data["serverName"]}"
         )
         return
 

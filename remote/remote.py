@@ -1,5 +1,7 @@
 from json import loads
-from pypresence import Presence
+from typing import Any
+
+from pypresence import Presence, ActivityType
 from socketio import Client
 from requests import get
 from time import sleep
@@ -20,6 +22,9 @@ socketio: Client = Client()
 # Declare the currentlyPlaying and lastPlayed dictionaries.
 currentlyPlaying: dict[str, dict[str, str | int]] = {}
 lastPlayed: currentlyPlaying = {}
+
+# Declare a LISTENING activity type to make code more readable.
+listening: ActivityType.LISTENING = ActivityType.LISTENING
 
 
 def filterRequestURL(url: str) -> str:
@@ -65,19 +70,26 @@ def updatePresence(data: dict[str, str] | None, playing: bool = True) -> None:
 
     # Check if Last.fm is enabled and if the media is playing and if the data is not None.
     if config["lastFmEnabled"] and playing and data:
-        # Convert the metadataArtists string to a list and get the first artist.
-        artist: str = data["directoryArtists"] if data["directoryArtists"] is not None else data["metadataArtists"].split(";")[0]
+        def sendRequest(splitArtists: bool = False) -> list[bool | Any]:
+            # Convert the metadataArtists string to a list and get the first artist.
+            if splitArtists:
+                artist: str = data["directoryArtists"] if data["directoryArtists"] is not None else data["metadataArtists"].split(";")[0]
+            else:
+                artist: str = data["directoryArtists"] if data["directoryArtists"] is not None else data["metadataArtists"]
 
-        # Create the Last.fm request URL.
-        lastFmRequest: str = filterRequestURL(
-            f"https://ws.audioscrobbler.com/2.0/?method=album.getInfo&api_key={config["lastFmApiKey"]}&artist={artist}&album={data["albumName"]}&format=json"
-        )
+            # Create the Last.fm request URL.
+            lastFmRequest: str = filterRequestURL(
+                f"https://ws.audioscrobbler.com/2.0/?method=album.getInfo&api_key={config["lastFmApiKey"]}&artist={artist}&album={data["albumName"]}&format=json"
+            )
 
-        # Get the Last.fm response.
-        lastFmResponse: dict[str, str] = get(lastFmRequest).json()
+            # Get the Last.fm response.
+            return [get(lastFmRequest).json(), splitArtists]
 
-        if "error" in lastFmResponse and lastFmResponse["error"] == 6:
-            albumImage = "plex-icon"
+        lastFmResponse, split = sendRequest()
+
+        if ("error" in lastFmResponse and lastFmResponse["error"] == 6) and not split:
+            sendRequest(True)
+        elif ("error" in lastFmResponse and lastFmResponse["error"] == 6) and split:
             pass
 
         # Get the album image from the Last.fm response.
@@ -103,13 +115,13 @@ def updatePresence(data: dict[str, str] | None, playing: bool = True) -> None:
 
         # Update the Discord RPC status with the data.
         RPC.update(
+            activity_type=listening,
             details=data["metadataTitle"],
             state=data["metadataArtists"],
             large_image=albumImage,
             large_text=f"{data["albumName"]}",
             small_image="plex-icon" if albumImage != "plex-icon" else None,
-            small_text=f"Listening on {data["serverName"]}",
-            type=2
+            small_text=f"Listening on {data["serverName"]}"
         )
         return
 
@@ -119,7 +131,7 @@ def updatePresence(data: dict[str, str] | None, playing: bool = True) -> None:
         case "media.pause":
             RPC.clear()
 
-        # If the media is stopped, clear the Discord RPC status if nothing is playing after 5 seconds..
+        # If the media is stopped, clear the Discord RPC status if nothing is playing after 5 seconds.
         case "media.stop":
             Thread(target=clearRPC, args=(5,)).start()
 
@@ -163,6 +175,18 @@ def resume(data: dict[str, str]) -> None:
     """
     data["eventType"] = "media.resume"
     updatePresence(data)
+
+
+@socketio.on("scrobble")
+def scrobble(data: dict[str, str]) -> None:
+    """
+    This function is called when the server sends a "scrobble" event to the client.
+
+    Args:
+        data (dict[str, str]): The data sent from the server.
+    """
+    if not data["metadataTitle"] == currentlyPlaying[data["metadataTitle"]] and data["metadataTitle"]:
+        updatePresence({"eventType": "media.play"}, True)
 
 
 @socketio.on("pause")
