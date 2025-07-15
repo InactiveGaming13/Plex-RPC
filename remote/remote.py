@@ -1,6 +1,7 @@
 from json import loads
 from typing import Any
 
+import datetime
 from pypresence import Presence, ActivityType
 from socketio import Client
 from requests import get
@@ -22,9 +23,6 @@ socketio: Client = Client()
 # Declare the currentlyPlaying and lastPlayed dictionaries.
 currentlyPlaying: dict[str, dict[str, str | int]] = {}
 lastPlayed: currentlyPlaying = {}
-
-# Declare a LISTENING activity type to make code more readable.
-listening: ActivityType.LISTENING = ActivityType.LISTENING
 
 
 def filterRequestURL(url: str) -> str:
@@ -53,7 +51,8 @@ def clearRPC(delay: float) -> None:
     if len(currentlyPlaying) == 0:
         RPC.clear()
         print("Cleared Discord RPC status due to the queue being empty.")
-        print("If the queue is not empty (This is a bug and should be reported at https://github.com/InactiveGaming13/Plex-RPC/issues), the status will be updated shortly.")
+        print(
+            "If the queue is not empty (This is a bug and should be reported at https://github.com/InactiveGaming13/Plex-RPC/issues), the status will be updated shortly.")
 
 
 def updatePresence(data: dict[str, str] | None, playing: bool = True) -> None:
@@ -67,73 +66,94 @@ def updatePresence(data: dict[str, str] | None, playing: bool = True) -> None:
 
     # Declare albumImage as None so that it always exists.
     albumImage: str | None = None
+    trackLength: int = 0
 
     # Check if Last.fm is enabled and if the media is playing and if the data is not None.
     if config["lastFmEnabled"] and playing and data:
-        def sendRequest(splitArtists: bool = False) -> list[bool | Any]:
+        def sendRequests(splitArtists: bool = False) -> list[bool | Any]:
             # Convert the metadataArtists string to a list and get the first artist.
             if splitArtists:
-                artist: str = data["directoryArtists"] if data["directoryArtists"] is not None else data["metadataArtists"].split(";")[0]
+                artist: str = data["directoryArtists"] if data["directoryArtists"] is not None else \
+                data["metadataArtists"].split(";")[0]
             else:
-                artist: str = data["directoryArtists"] if data["directoryArtists"] is not None else data["metadataArtists"]
+                artist: str = data["directoryArtists"] if data["directoryArtists"] is not None else data[
+                    "metadataArtists"]
 
             # Create the Last.fm request URL.
-            lastFmRequest: str = filterRequestURL(
+            lastFmAlbumRequest: str = filterRequestURL(
                 f"https://ws.audioscrobbler.com/2.0/?method=album.getInfo&api_key={config["lastFmApiKey"]}&artist={artist}&album={data["albumName"]}&format=json"
+            )
+            lastFmTrackRequest: str = filterRequestURL(
+                f"https://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key={config["lastFmApiKey"]}&artist={artist}&track={data["metadataTitle"]}&format=json"
             )
 
             # Get the Last.fm response.
-            return [get(lastFmRequest).json(), splitArtists]
+            return [get(lastFmAlbumRequest).json(), get(lastFmTrackRequest).json(), splitArtists]
 
-        lastFmResponse, split = sendRequest()
+        lastFmAlbumResponse, lastFmTrackResponse, split = sendRequests()
 
-        if ("error" in lastFmResponse and lastFmResponse["error"] == 6) and not split:
-            sendRequest(True)
-        elif ("error" in lastFmResponse and lastFmResponse["error"] == 6) and split:
+        if ("error" in lastFmAlbumResponse and lastFmAlbumResponse["error"] == 6) and not split:
+            sendRequests(True)
+        elif ("error" in lastFmAlbumResponse and lastFmAlbumResponse["error"] == 6) and split:
             pass
 
         # Get the album image from the Last.fm response.
-        albumImage = lastFmResponse["album"]["image"][3]["#text"] if "album" in lastFmResponse and lastFmResponse["album"]["image"][3]["#text"] != "" else "plex-icon"
+        albumImage = lastFmAlbumResponse["album"]["image"][3]["#text"] if "album" in lastFmAlbumResponse and \
+                                                                          lastFmAlbumResponse["album"]["image"][3][
+                                                                         "#text"] != "" else "plex-icon"
+
+        if ("error" in lastFmTrackResponse and lastFmTrackResponse["error"] == 6) and not split:
+            sendRequests(True)
+        elif ("error" in lastFmTrackResponse and lastFmTrackResponse["error"] == 6) and split:
+            pass
+
+        trackLength: int = int(int(lastFmTrackResponse["track"]["duration"]) / 1000)
 
     # Check if the media is playing and if the data is not None.
-    if playing and data:
-        # Replace the semicolon with a comma and space in the metadataArtists string.
-        data["metadataArtists"] = data["metadataArtists"].replace(";", ", ")
+    if not playing or not data:
+        # This will only happen if the media is not playing.
+        match data["eventType"]:
+            # If the media is paused, clear the Discord RPC status.
+            case "media.pause":
+                RPC.clear()
 
-        # Check if the currentlyPlaying dictionary is not empty and clear it.
-        if len(currentlyPlaying) > 0:
-            currentlyPlaying.clear()
+            # If the media is stopped, clear the Discord RPC status if nothing is playing after 5 seconds.
+            case "media.stop":
+                Thread(target=clearRPC, args=(5,)).start()
+        return
 
-        # Get the last used PID.
-        lastUsed: int = 0 if len(lastPlayed) == 0 else 1 if next(iter(lastPlayed.values()))["pid"] == 0 else 0
+    # Replace the semicolon with a comma and space in the metadataArtists string.
+    data["metadataArtists"] = data["metadataArtists"].replace(";", ", ")
 
-        # Update the currentlyPlaying dictionary with the data and last used PID.
-        currentlyPlaying[data["metadataTitle"]] = {"artist": data["metadataArtists"], "pid": lastUsed}
+    # Check if the currentlyPlaying dictionary is not empty and clear it.
+    if len(currentlyPlaying) > 0:
+        currentlyPlaying.clear()
 
-        # Clear the Discord RPC status so that the new status can be set and there is only one status.
-        RPC.clear(next(iter(lastPlayed.values()))["pid"]) if len(lastPlayed) > 0 else None
+    # Get the last used PID.
+    lastUsed: int = 0 if len(lastPlayed) == 0 else 1 if next(iter(lastPlayed.values()))["pid"] == 0 else 0
 
+    # Update the currentlyPlaying dictionary with the data and last used PID.
+    currentlyPlaying[data["metadataTitle"]] = {"artist": data["metadataArtists"], "pid": lastUsed}
+
+    # Clear the Discord RPC status so that the new status can be set and there is only one status.
+    RPC.clear(next(iter(lastPlayed.values()))["pid"]) if len(lastPlayed) > 0 else None
+
+    print(trackLength)
+
+    if trackLength is not None and trackLength != 0:
         # Update the Discord RPC status with the data.
         RPC.update(
-            activity_type=listening,
+            activity_type=ActivityType.LISTENING,
             details=data["metadataTitle"],
             state=data["metadataArtists"],
             large_image=albumImage,
             large_text=f"{data["albumName"]}",
             small_image="plex-icon" if albumImage != "plex-icon" else None,
-            small_text=f"Listening on {data["serverName"]}"
+            small_text=f"Listening on {data["serverName"]}",
+            start=int(datetime.datetime.now().timestamp()),
+            end=int(datetime.datetime.now().timestamp()) + trackLength
         )
-        return
-
-    # This will only happen if the media is not playing.
-    match data["eventType"]:
-        # If the media is paused, clear the Discord RPC status.
-        case "media.pause":
-            RPC.clear()
-
-        # If the media is stopped, clear the Discord RPC status if nothing is playing after 5 seconds.
-        case "media.stop":
-            Thread(target=clearRPC, args=(5,)).start()
+    return
 
 
 @socketio.on("connect")
