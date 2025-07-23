@@ -138,22 +138,18 @@ def updatePresence(data: dict[str, str] | None, playing: bool = True) -> None:
     # Clear the Discord RPC status so that the new status can be set and there is only one status.
     RPC.clear(next(iter(lastPlayed.values()))["pid"]) if len(lastPlayed) > 0 else None
 
-    print(trackLength)
-
-    if trackLength is not None and trackLength != 0:
-        # Update the Discord RPC status with the data.
-        RPC.update(
-            activity_type=ActivityType.LISTENING,
-            details=data["metadataTitle"],
-            state=data["metadataArtists"],
-            large_image=albumImage,
-            large_text=f"{data["albumName"]}",
-            small_image="plex-icon" if albumImage != "plex-icon" else None,
-            small_text=f"Listening on {data["serverName"]}",
-            start=int(datetime.datetime.now().timestamp()),
-            end=int(datetime.datetime.now().timestamp()) + trackLength
-        )
-    return
+    # Update the Discord RPC status with the data.
+    RPC.update(
+        activity_type=ActivityType.LISTENING,
+        details=data["metadataTitle"],
+        state=data["metadataArtists"],
+        large_image=albumImage,
+        large_text=f"{data["albumName"]}",
+        small_image="plex-icon" if albumImage != "plex-icon" else None,
+        small_text=f"Listening on {data["serverName"]}",
+        start=int(datetime.datetime.now().timestamp()),
+        end=int(datetime.datetime.now().timestamp()) + trackLength if trackLength > 0 else None
+    )
 
 
 @socketio.on("connect")
